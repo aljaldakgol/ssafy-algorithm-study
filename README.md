@@ -233,7 +233,7 @@ Merge Request 본문에는 다음 내용을 작성합니다.
 
 |                    이름                   |                    GitLab ID                    | 주 사용 언어 |
 | :-------------------------------------: | :---------------------------------------------: | :-----: |
-| [최승언](https://lab.ssafy.com/chygold06) | [@본인GitLabID](https://lab.ssafy.com/chygold06) |   Java  |
+| [최승언](https://lab.ssafy.com/chygold06) | [@chygold06](https://lab.ssafy.com/chygold06) |   Java  |
 |   [곽정민](https://lab.ssafy.com/paulkjm)  |    [@paulkjm](https://lab.ssafy.com/paulkjm)    |   Java  |
 | [정다은](https://lab.ssafy.com/kate030551) | [@kate030551](https://lab.ssafy.com/kate030551) |   Java  |
 | [문하늘](https://lab.ssafy.com/melody0404) | [@melody0404](https://lab.ssafy.com/melody0404) |   Java  |
