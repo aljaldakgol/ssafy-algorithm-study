@@ -90,7 +90,8 @@ public class SWEA_1983_조교의 성적 매기기 {
 			StringTokenizer st = new StringTokenizer(br.readLine());
 
 			int studentNum = Integer.parseInt(st.nextToken()); // 1) 몇명인가?
-            int kth = Integer.parseInt(st.nextToken());        // 2) 몇 번째 학생인가?
+			
+			int kth = Integer.parseInt(st.nextToken());        // 2) 몇 번째 학생인가?
 			
 			//3) 각 점수를 입력 받아서 총점 및 k의 학점 구하기
 			String kthScore= getScore(studentNum, kth);
