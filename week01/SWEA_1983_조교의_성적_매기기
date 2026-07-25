@@ -1,0 +1,74 @@
+/*
+ * 문제: SWEA_1983_조교의_성적_매기기
+ * 메모리:  31,744 kb
+ * 실행 시간:  132 ms
+ * 알고리즘:  
+ */
+package week01;
+import java.util.Scanner;
+import java.io.FileInputStream;
+
+public class SWEA_1983_조교의 성적 매기기 {
+	static Scanner sc = new Scanner (System.in);
+
+	private static String getScore(int studentNum, int kth) {
+		double[] scoreArr = new double[studentNum];
+		 
+        // studentNum명의 점수 입력 받기 -> 총점을 배열로 저장
+        for(int i = 0; i<studentNum; i++) {
+			double midScore = sc.nextInt();
+			double finalScore = sc.nextInt();
+			double hwScore=sc.nextInt();
+			double sumScore = midScore*0.35 + finalScore *0.45 + hwScore*0.2;
+			scoreArr[i]=sumScore;
+		}
+        //kth 학생 : 등수로 학점 구하기
+		int seq = 1;					//시작은 1등
+
+		for(int j =0; j<studentNum; j++)
+		{
+			if(scoreArr[j]>scoreArr[kth-1]) { //kth 학생의 점수가 더 낮으면
+				seq++;					 // 등수 내려감
+			}
+		}
+		if((seq)<=(studentNum/10)) {
+				return "A+";
+		}else if((seq)<=(studentNum/10)*2) {
+			return "A0";
+		}else if((seq)<=(studentNum/10)*3) {
+			return "A-";
+		}else if((seq)<=(studentNum/10)*4) {
+			return "B+";
+		}else if((seq)<=(studentNum/10)*5) {
+			return "B0";
+		}else if((seq)<=(studentNum/10)*6) {
+			return "B-";
+		}else if((seq)<=(studentNum/10)*7) {
+			return "C+";
+		}else if((seq)<=(studentNum/10)*8) {
+			return "C0";
+		}else if((seq)<=(studentNum/10)*9) {
+			return "C-";
+		}else if((seq)<=(studentNum/10)*10) {
+			return "D0";
+		}else{
+            return null;
+        }
+	}
+    // main 시작
+	public static void main(String[] args)throws Exception {
+
+		int numT = sc.nextInt();	// 테스트 케이스 수
+
+		for(int test_case = 1; test_case <= numT; test_case++){
+			int studentNum = sc.nextInt();	//1) 몇명인가?
+			int kth = sc.nextInt();	//2) 몇 번째 학생꺼를 알고 싶은가?
+			
+			//3) 각 점수를 입력 받아서 총점 및 k의 학점 구하기
+			String kthScore= getScore(studentNum, kth);
+			
+			//5) 알고 싶은 학생의 점수 출력하기
+			System.out.println("#" +test_case+" "+kthScore);
+		}
+	}
+}
