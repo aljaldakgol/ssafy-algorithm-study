@@ -31,6 +31,7 @@ public class SWEA_1983_조교의 성적 매기기 {
 				seq++;					 // 등수 내려감
 			}
 		}
+		/*
 		if((seq)<=(studentNum/10)) {
 				return "A+";
 		}else if((seq)<=(studentNum/10)*2) {
@@ -54,6 +55,13 @@ public class SWEA_1983_조교의 성적 매기기 {
 		}else{
             return null;
         }
+        */
+        
+        // 위의 방법 수정하기
+        String[] grades = {"A+", "A0", "A-", "B+", "B0", "B-", "C+", "C0", "C-", "D0"};
+        
+        int index = (seq-1) / (studentNum/10);
+        return grades[index];
 	}
     // main 시작
 	public static void main(String[] args)throws Exception {
