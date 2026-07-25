@@ -16,8 +16,7 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 
-public class SWEA_1983_조교의 성적 매기기 {
-	static Scanner sc = new Scanner (System.in);
+public class SWEA_1983_조교의_성적_매기기 {
 
 	private static String getScore(BufferedReader br, int studentNum, int kth) throws Exception {
 		double[] scoreArr = new double[studentNum];
@@ -94,7 +93,7 @@ public class SWEA_1983_조교의 성적 매기기 {
 			int kth = Integer.parseInt(st.nextToken());        // 2) 몇 번째 학생인가?
 			
 			//3) 각 점수를 입력 받아서 총점 및 k의 학점 구하기
-			String kthScore= getScore(studentNum, kth);
+			String kthScore= getScore(br, studentNum, kth);
 			
 			//5) 알고 싶은 학생의 점수 출력하기
 			System.out.println("#" +test_case+" "+kthScore);
