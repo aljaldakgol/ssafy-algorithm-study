@@ -45,23 +45,25 @@ public class SWEA_1974_스도쿠_검증 {
 			}
 			// 3) small
 			for (int i = 0; i < 9; i = i + 3) {
-			    for (int j = 0; j < 9; j = j + 3) {
-
-			        boolean[] check = new boolean[10]; 
-			        
-			        for (int k = 0; k < 3; k++) {
-			            for (int l = 0; l < 3; l++) {
-			                int num = matrix[i + k][j + l];
-			                
-			                if (check[num] == true) {
-			                    result = 0; 
-			                } else {
-			                    check[num] = true; 
-			                }
-			            }
-			        }
-			        
-			    }
+				for (int j = 0; j < 9; j = j + 3) {
+					
+					for (int k = 0; k < 3; k++) {
+						for (int l = 0; l < 3; l++) {
+							
+							for (int m = 0; m < 3; m++) {
+								for (int n = 0; n < 3; n++) {
+									
+									if (!((k == m) && (l == n)) && (matrix[i + k][j + l] == matrix[i + m][j + n])) {
+										result = 0;
+									}
+									
+								}
+							}
+							
+						}
+					}
+					
+				}
 			}
 				
 			System.out.printf("#%d %d\n", test_case,result);
