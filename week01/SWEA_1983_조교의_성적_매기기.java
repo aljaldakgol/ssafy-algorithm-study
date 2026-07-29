@@ -1,0 +1,102 @@
+/*
+ * 문제: SWEA_1983_조교의_성적_매기기
+ * 메모리:  31,744 kb
+ * 실행 시간:  132 ms
+ * 알고리즘:  
+
+ * 피드백 : scanner 말고 BufferedReader 사용하는 게 아직 어렵다. 근데 BufferedReader를 쓰면 확실히 27,520 kb, 87ms로 메모리 및 시간이 줄어든다
+ * BufferedReader를 쓰는 것을 습관화하자!!
+ */
+
+package week01;
+//import java.util.Scanner;
+import java.io.FileInputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+
+public class SWEA_1983_조교의_성적_매기기 {
+
+	private static String getScore(BufferedReader br, int studentNum, int kth) throws Exception {
+		double[] scoreArr = new double[studentNum];
+		 
+        // studentNum명의 점수 입력 받기 -> 총점을 배열로 저장
+        for(int i = 0; i<studentNum; i++) {
+
+			// 한 줄 읽어와서 공백 기준으로 나누기
+			StringTokenizer st = new StringTokenizer(br.readLine());
+
+			// Scanner의 nextDouble
+			double midScore = Double.parseDouble(st.nextToken());
+            double finalScore = Double.parseDouble(st.nextToken());
+            double hwScore = Double.parseDouble(st.nextToken());
+
+			double sumScore = midScore*0.35 + finalScore *0.45 + hwScore*0.2;
+			scoreArr[i]=sumScore;
+		}
+        //kth 학생 : 등수로 학점 구하기
+		int seq = 1;					//시작은 1등
+
+		for(int j =0; j<studentNum; j++)
+		{
+			if(scoreArr[j]>scoreArr[kth-1]) { //kth 학생의 점수가 더 낮으면
+				seq++;					 // 등수 내려감
+			}
+		}
+		/*
+		if((seq)<=(studentNum/10)) {
+				return "A+";
+		}else if((seq)<=(studentNum/10)*2) {
+			return "A0";
+		}else if((seq)<=(studentNum/10)*3) {
+			return "A-";
+		}else if((seq)<=(studentNum/10)*4) {
+			return "B+";
+		}else if((seq)<=(studentNum/10)*5) {
+			return "B0";
+		}else if((seq)<=(studentNum/10)*6) {
+			return "B-";
+		}else if((seq)<=(studentNum/10)*7) {
+			return "C+";
+		}else if((seq)<=(studentNum/10)*8) {
+			return "C0";
+		}else if((seq)<=(studentNum/10)*9) {
+			return "C-";
+		}else if((seq)<=(studentNum/10)*10) {
+			return "D0";
+		}else{
+            return null;
+        }
+        */
+        
+        // 위의 방법 수정하기
+        String[] grades = {"A+", "A0", "A-", "B+", "B0", "B-", "C+", "C0", "C-", "D0"};
+        
+        int index = (seq-1) / (studentNum/10);
+        return grades[index];
+	}
+    // main 시작
+	public static void main(String[] args)throws Exception {
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+		// 첫 줄 읽어서 정수로 변환 (테스트 케이스 수)
+		int numT = Integer.parseInt(br.readLine().trim());
+
+		for(int test_case = 1; test_case <= numT; test_case++){
+
+			StringTokenizer st = new StringTokenizer(br.readLine());
+
+			int studentNum = Integer.parseInt(st.nextToken()); // 1) 몇명인가?
+			
+			int kth = Integer.parseInt(st.nextToken());        // 2) 몇 번째 학생인가?
+			
+			//3) 각 점수를 입력 받아서 총점 및 k의 학점 구하기
+			String kthScore= getScore(br, studentNum, kth);
+			
+			//5) 알고 싶은 학생의 점수 출력하기
+			System.out.println("#" +test_case+" "+kthScore);
+		}
+	}
+}
