@@ -31,14 +31,12 @@ class Solution
         // 현재 숫자 미선택
         sumK(idx+1, sum, count);
     }
-	public static void main(String args[]) throws Exception
-	{
+	public static void main(String args[]) throws Exception {
 		Scanner sc = new Scanner(System.in);
 		int T;
 		T=sc.nextInt();
 
-		for(int test_case = 1; test_case <= T; test_case++)
-		{	
+		for(int test_case = 1; test_case <= T; test_case++) {	
             answer =0;
             nums.clear();
             // 개수
