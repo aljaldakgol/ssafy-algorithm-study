@@ -3,8 +3,7 @@ import java.io.FileInputStream;
 import java.util.LinkedList;
 import java.util.Queue;
 
-class Solution
-{
+class Solution {
     // 내가 못 함
     static boolean bfs(int[][] grid, int sx, int sy) {
 		// 상하좌우 이동 위한 방향 배열
@@ -63,15 +62,13 @@ class Solution
     	}
         // 큐가 모두 비었는데도 도착점을 찾지 못한 경우
     	return false;
-}
+	}
     // 여기부턴 직접 짬
-	public static void main(String args[]) throws Exception
-	{
+	public static void main(String args[]) throws Exception {
 		Scanner sc = new Scanner(System.in);
 		
 
-		for(int test_case = 1; test_case <= 10; test_case++)
-		{
+		for(int test_case = 1; test_case <= 10; test_case++) {
             int T=sc.nextInt();
             int[][] grid = new int[16][16];
             int sx = 0;
