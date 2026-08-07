@@ -37,7 +37,7 @@ class Solution
             avg /= 8;
             int iavg = Math.round(avg);
                 
-             System.out.println("#" + test_case +" " + iavg);
+            System.out.println("#" + test_case +" " + iavg);
 		}
 	}
 }
