@@ -2,13 +2,10 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-class Solution
-{
-	public static void main(String args[]) throws Exception
-	{   
+class Solution {
+	public static void main(String args[]) throws Exception {   
         Scanner sc = new Scanner(System.in);
-		for(int test_case = 1; test_case <= 10; test_case++)
-		{
+		for(int test_case = 1; test_case <= 10; test_case++) {
             int N = sc.nextInt();
             List<Integer> nums = new ArrayList<>();
             String num = sc.next();
