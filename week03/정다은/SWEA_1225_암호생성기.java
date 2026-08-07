@@ -4,14 +4,11 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 // 선입선출이라 큐 사용
-class Solution
-{
-	public static void main(String args[]) throws Exception
-	{
+class Solution {
+	public static void main(String args[]) throws Exception {
 		Scanner sc = new Scanner(System.in);
 		
-		for(int test_case = 1; test_case <= 10; test_case++)
-		{
+		for(int test_case = 1; test_case <= 10; test_case++) {
             int t = sc.nextInt();
 			Queue<Integer> queue = new LinkedList<>();
             for (int i=0;i<8;i++) {
