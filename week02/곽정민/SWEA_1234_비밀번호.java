@@ -40,7 +40,7 @@ public class SWEA_1234_비밀번호 {
                 sb[i] = stack.elementAt(i);
             }
 
-            System.out.println("#" + tc + " " + sb);
+            System.out.println("#" + tc + " " + new String(sb));
         }
     }
 }
