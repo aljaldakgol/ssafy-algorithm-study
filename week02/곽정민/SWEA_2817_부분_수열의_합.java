@@ -45,7 +45,7 @@ public class SWEA_2817_부분_수열의_합 {
                 arr[i] = Integer.parseInt(st.nextToken());
             }
 
-            
+            count = 0;
             dfs(0, 0,arr,limitsum);
 
             System.out.println("#" + tc + " " + count);
