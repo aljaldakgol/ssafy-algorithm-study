@@ -42,11 +42,13 @@ public class SWEA_1225_암호생성기 {
                 queue.add(front);
             }
 
-            System.out.print("#" + tc);
-            for (int num : queue) {
-                System.out.print(" " + num);
+            StringBuilder sb = new StringBuilder();
+             for (int num : queue) {
+                sb.append(num + " ");
             }
-            System.out.println();
+            System.out.println("#" + tc + " "+sb.toString());
+           
+         
         }
     }
 }
