@@ -1,4 +1,4 @@
-package week02.곽정민;
+package week03.곽정민;
 
 /*
  * 문제: SWEA 1234 비밀번호
