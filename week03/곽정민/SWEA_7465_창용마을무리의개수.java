@@ -33,7 +33,8 @@ public class SWEA_7465_창용마을무리의개수 {
         if (group[x] == x) {
             return x;
         }
-        return group[x] = find(group[x]); //만약 root값 아니면 부모를 호출
+        return group[x] = find(group[x]); //만약 root값 아니면 부모를 호출 그리고 대입 연산자 안쓰고
+        // find메소드만 호출하면 다음 같은 그룹을 넣을때도 계속해서 체인 호출이 일어남
     }
 
     static void union(int a, int b) {
