@@ -27,13 +27,13 @@ import java.util.StringTokenizer;
 
 public class SWEA_7465_창용마을무리의개수 {
 
-    static int[] parent;
+    static int[] group;
 
     static int find(int x) {
-        if (parent[x] == x) {
+        if (group[x] == x) {
             return x;
         }
-        return parent[x] = find(parent[x]); //만약 root값 아니면 부모를 호출
+        return group[x] = find(group[x]); //만약 root값 아니면 부모를 호출
     }
 
     static void union(int a, int b) {
@@ -41,7 +41,7 @@ public class SWEA_7465_창용마을무리의개수 {
         int rootB = find(b);
 
         if (rootA != rootB) {
-            parent[rootB] = rootA; // b의 값을 a(부모)로 바꿈
+            group[rootB] = rootA; // b의 값을 a(부모)로 바꿈
         }
     }
 
@@ -55,9 +55,9 @@ public class SWEA_7465_창용마을무리의개수 {
             int people = Integer.parseInt(st.nextToken());
             int relation = Integer.parseInt(st.nextToken());
 
-            parent = new int[people + 1];
+            group = new int[people + 1];
             for (int i = 1; i <= people; i++) {
-                parent[i] = i;
+                group[i] = i;
             }
 
             for (int i = 0; i < relation; i++) {
