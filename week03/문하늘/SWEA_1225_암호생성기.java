@@ -75,7 +75,7 @@ public class SWEA_1225_암호생성기 {
 //					}
 					if(num<=0) {
 						queue.add(0);
-						ifFinished = true; 
+						isFinished = true; 
 						break;
 					}
 					
