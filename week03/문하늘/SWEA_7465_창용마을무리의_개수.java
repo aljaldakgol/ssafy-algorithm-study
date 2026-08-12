@@ -41,35 +41,39 @@ public class SWEA_7465_창용마을무리의_개수 {
 					visited[another-1] = idxMuri;
 				}
 				
-				// 2) 둘 중 한 명만 무리에 들어 있는 경우 나머지 한 명을 무리에 합류
-				else if ((visited[one-1] * visited[another-1]) == 0) {
-					// 3-1) one이 첫 언급인 경우 another네 무리 껴주기
-					if (visited[one-1] == 0) {
-						visited[one-1] = visited[another-1];
-					}
-					
-					// 3-2) another이 첫 언급인 경우 one네 무리 껴주기
-					else if (visited[another-1] == 0) {
-						visited[another-1] = visited[one-1];
-					}
+				// 2) 둘 중 한 명만 들어있는 경우 -> 그 사람 무리 번호 따라가기
+				else if (visited[one - 1] == 0) {
+				    visited[one - 1] = visited[another - 1];
+				} else if (visited[another - 1] == 0) {
+				    visited[another - 1] = visited[one - 1];
 				}
 				
 				// 3) 둘이 서로 다른 무리에 속해 있는 경우 두 무리 합치기
-				else if((visited[one-1] * visited[another-1]) != 0){
+				// 여기가 문제.. !!! 
+				// 1) 두 값이 같은 상태로 주어질 수도 있다는 것을 간과했음
+				// 2) targetMuri 를 만들어 놓아야 했음 왜냐면 중간에 값이 바뀔수도 있는데  무리 합치는 순간 기준값이 변경
+				else if(visited[one - 1] != visited[another - 1] ){
 					muriNum--;
-					for (int index = 0; index < N; index++) {
-						if (visited[index] == visited[another-1]) {
-							visited[index] = visited[one-1];
-						}
-					}
+					int targetMuri = visited[another - 1]; 
+					
+				    for (int index = 0; index < N; index++) {
+				        if (visited[index] == targetMuri) {
+				            visited[index] = visited[one - 1];
+				        }
+				    }
+				    
 				}
 				
-				idxMuri++;	// 어떤 숫자인지에 대해서는 관심 없고 그냥 같은 무리라는 것을 표시
+				idxMuri++;	// 어떤 숫자인지에 대해서는 관심 없고 그냥 같은 무리라는 것을 표시	
+				
 			}
+			
 			
 			// 총 무리 수 : muriNum + 한 번도 언급되지 않은 사람 수(neverVisitedNum)
 			int neverVisitedNum = 0;
+			
 			for (int j = 0; j<N ;j++) {
+				
 				if(visited[j]==0) {
 					neverVisitedNum++;
 				}
