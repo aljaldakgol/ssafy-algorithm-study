@@ -14,7 +14,7 @@ public class SWEA_2817_부분수열의_합 {
 		
 		int T = Integer.parseInt(br.readLine().trim());
 		
-		for (int tc = 1; tc < T; tc++) {
+		for (int tc = 1; tc <= T; tc++) {
 			StringTokenizer st = new StringTokenizer(br.readLine());
 			
 			N = Integer.parseInt(st.nextToken());
