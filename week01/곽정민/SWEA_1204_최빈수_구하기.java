@@ -4,8 +4,12 @@
  */
 
 import java.util.Scanner;
+import java.util.StringTokenizer;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
+
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class SWEA_1204_최빈수_구하기 {
 
@@ -19,6 +23,10 @@ public class SWEA_1204_최빈수_구하기 {
 
 		for(int test_case = 1; test_case <= T; test_case++)
 		{
+            //BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		    //StringTokenizer st;
+
+		    //int T1 = Integer.parseInt(br.readLine());
             int casenum = sc.nextInt();
 
             // score_count[n] = 값 n이 등장한 횟수 (0~100 범위이므로 크기 101)
