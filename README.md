@@ -249,4 +249,4 @@ PR을 통해 다른 팀원의 코드를 확인하고, 필요한 경우 질문이
 | [<img src="https://github.com/ChoiSeungeon.png" width="100">](https://github.com/ChoiSeungeon) | [<img src="https://github.com/TUJungMin.png" width="100">](https://github.com/TUJungMin) | [<img src="https://github.com/0JDaEun.png" width="100">](https://github.com/0JDaEun) | [<img src="https://github.com/moonaneul.png" width="100">](https://github.com/moonaneul) |
 | :---: | :---: | :---: | :---: |
 | **최승언** | **곽정민** | **정다은** | **문하늘** |
-| [@GITHUB_ID_1](https://github.com/GITHUB_ID_1) | [@GITHUB_ID_2](https://github.com/TUJungMin) | [@GITHUB_ID_3](https://github.com/0JDaEun) | [@GITHUB_ID_4](https://github.com/moonaneul) |
+| [@ChoiSeungeon](https://github.com/ChoiSeungeon) | [@TUJungMin](https://github.com/TUJungMin) | [@0JDaEun](https://github.com/0JDaEun) | [@moonaneul](https://github.com/moonaneul) |
