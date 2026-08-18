@@ -32,6 +32,9 @@ reviews:
   # 최종 판단은 스터디원이 직접 수행
   request_changes_workflow: false
 
+  tools:
+    pmd:
+      enabled: false
 
   # -------------------------------------------------------
   # PR 요약
