@@ -1,3 +1,12 @@
+/**
+ * 현재 코드는 "뒤쪽 비트들을 직접 하나씩 다 바꿔주는 시뮬레이션 O(N^2) 방식으로 동작
+ * 1) 매번 뒤쪽 배열을 for문으로 덮어쓸 이유가 없다.
+ * 2) 문자열을 굳이 int[]로 바꾸지 않아도 된다. String.charAt() 직접 활용 가능
+ * 3) 자바는 기본적으로 배열을 0으로 초기화한다. 따라서 for문으로 초기화하지 않아도 된다. 
+ * 
+ * tip) break 대신 searchFin = true; 했을 때 오류가 났는데 이유
+ * 배열 인덱스 초과 에러 : while문 조건 검사 시점 때문에! break은 즉시 while문을 탈출한다. 
+ */
 package week04;
 import java.util.*;
 import java.io.*;
