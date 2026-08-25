@@ -6,9 +6,14 @@ public class SWEA_3499_퍼펙트셔플   {
 
   static String[] perfectShuffle(String[] cards, int n) {
     String[] result = new String[n];
+    int frontLen = (n + 1) / 2;   // n이 홀수면 앞쪽(front)에 한 장 더
 
-    // TODO: 절반으로 나누고 교대로 뽑아서 result 채우기
-    // - n이 홀수면 앞쪽(front)에 한 장 더 들어가게
+    for (int i = 0; i < frontLen; i++) {
+      result[2 * i] = cards[i];
+    }
+    for (int i = 0; i < n - frontLen; i++) {
+      result[2 * i + 1] = cards[frontLen + i];
+    }
 
     return result;
   }
