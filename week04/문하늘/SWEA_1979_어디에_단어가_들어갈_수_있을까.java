@@ -5,7 +5,7 @@ package week04;
 import java.util.*;
 import java.io.*;
 
-public class SWEA_1979_¾îµğ¿¡_´Ü¾î°¡_µé¾î°¥_¼ö_ÀÖÀ»±î {
+public class SWEA_1979_ì–´ë””ì—_ë‹¨ì–´ê°€_ë“¤ì–´ê°ˆ_ìˆ˜_ìˆì„ê¹Œ {
 
 	/**
 	 * @param args
@@ -38,10 +38,10 @@ public class SWEA_1979_¾îµğ¿¡_´Ü¾î°¡_µé¾î°¥_¼ö_ÀÖÀ»±î {
 			
 			
 			
-			int countCase = 0;	// Á¶°Ç¿¡ ¸Â´Â °æ¿ì Ä«¿îÆ®ÇÏ±â
+			int countCase = 0;	// ì¡°ê±´ì— ë§ëŠ” ê²½ìš° ì¹´ìš´íŠ¸í•˜ê¸°
 			int countOne=0;
 
-			// 1) Çà¼øÈ¸  puzzle[k][l]
+			// 1) í–‰ìˆœíšŒ  puzzle[k][l]
 			for(int k = 0; k<puzzleLen; k++) {
 				countOne = 0;
 				for (int l = 0; l<puzzleLen; l++) {
@@ -54,7 +54,7 @@ public class SWEA_1979_¾îµğ¿¡_´Ü¾î°¡_µé¾î°¥_¼ö_ÀÖÀ»±î {
 					
 				}
 			}
-			// 2) ¿­ ¼øÈ¸ puzzle[n][m]
+			// 2) ì—´ ìˆœíšŒ puzzle[n][m]
 			for(int m = 0; m<puzzleLen; m++) {
 				countOne = 0;
 				for (int n = 0; n<puzzleLen; n++) {
@@ -68,7 +68,7 @@ public class SWEA_1979_¾îµğ¿¡_´Ü¾î°¡_µé¾î°¥_¼ö_ÀÖÀ»±î {
 				}
 			}
 			
-			// 3) °á°ú Ãâ·Â
+			// 3) ê²°ê³¼ ì¶œë ¥
 			System.out.println("#"+tc+ " "+countCase);
 		}
 	}
