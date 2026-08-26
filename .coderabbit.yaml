@@ -667,7 +667,7 @@ knowledge_base:
   # 문제 이름을 보고 인터넷의 풀이/정답을 검색해
   # 비교하는 방식은 사용하지 않음
   web_search:
-    enabled: false
+    enabled: true
 
   # 이 저장소에서 학습한 리뷰 선호도는 이 저장소에서만 사용
   learnings:
