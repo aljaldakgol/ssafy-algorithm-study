@@ -1,7 +1,8 @@
+package week04;
 import java.util.*;
 import java.io.*;
 
-public class Solution {
+public class SWEA_4014_활주로_건설 {
 
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		// TODO Auto-generated method stub
@@ -101,7 +102,14 @@ public class Solution {
 
 						}
 						
-						if(xCount<slopeLen) {isSlope=false; break;} // 길이짧네 경사로 불가능
+						if(xCount<slopeLen) {
+							for (int i = l; i<l+1+check; i++) {
+								slopeVisited[i]= false; 
+							}
+							isSlope=false; 
+							break;
+							
+						} // 길이짧네 경사로 불가능
 					}
 					
 					// 3) 근데 다 동일한 값 즉 불변이 있어?
@@ -153,7 +161,13 @@ public class Solution {
 							if(xCount==slopeLen) {break;}
 
 						}
-						if(xCount<slopeLen) {isSlope=false;break;} // 길이짧네 경사로 불가능
+						if(xCount<slopeLen) {
+							for (int i = l; i<l+1+check; i++) {
+								slopeVisited[i]= false; 
+							}
+							isSlope=false;
+							break;
+						} // 길이짧네 경사로 불가능
 					}					
 				}
 				
@@ -167,4 +181,3 @@ public class Solution {
 	}
 
 }
-
