@@ -8,6 +8,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
         int T = Integer.parseInt(br.readLine());
         UserSolution userSolution = new UserSolution();
 
@@ -63,25 +64,36 @@ public class Main {
 
 
 class UserSolution {
-    // 0: 위, 1: 오른쪽, 2: 아래, 3: 왼쪽
     static final int UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3;
     static final int[] DX = {0, 1, 0, -1};
     static final int[] DY = {-1, 0, 1, 0};
+    static final int INF = 1_000_000_000;
 
     int N;
 
-    // road[y][x] : 이동 가능한 방향 bitmask
+    // road[y][x] : 현재 위치에서 이동 가능한 방향 bitmask
     int[][] road;
-
-    // 실제 도로 / 교차로
     boolean[][] isRoad;
     boolean[][] crossroad;
 
-    // edgeOwner[y][x][dir] : 해당 물리적 도로를 사용하는 건물 ID
+    // edgeOwner[y][x][dir] : 해당 물리적 도로를 사용하는 건물
     Set<Integer>[][][] edgeOwner;
 
-    // mId -> {하역장 도로 x, y, 해당 건물의 시계방향}
+    // mId -> {dockX, dockY, clockwiseDirection}
     Map<Integer, int[]> dock;
+
+    // 건물 ID를 0부터 시작하는 index로 변환
+    Map<Integer, Integer> buildingIndex;
+    List<Integer> buildingIds;
+
+    // source building -> 모든 하역장까지의 최단거리
+    Map<Integer, int[]> distanceCache;
+
+    // BFS 재사용 배열
+    int[] queue;
+    int[] visited;
+    int[] stateDistance;
+    int visitId;
 
     boolean dirty;
 
@@ -94,47 +106,48 @@ class UserSolution {
         isRoad = new boolean[N][N];
         crossroad = new boolean[N][N];
         edgeOwner = new HashSet[N][N][4];
+
         dock = new HashMap<>();
+        buildingIndex = new HashMap<>();
+        buildingIds = new ArrayList<>();
+        distanceCache = new HashMap<>();
 
-        for (int y = 0; y < N; y++) {
-            for (int x = 0; x < N; x++) {
-                for (int dir = 0; dir < 4; dir++) {
-                    edgeOwner[y][x][dir] = new HashSet<>();
-                }
-            }
-        }
+        int stateCount = N * N * 4;
+        queue = new int[stateCount];
+        visited = new int[stateCount];
+        stateDistance = new int[stateCount];
 
+        visitId = 0;
         dirty = false;
     }
 
 
     public void addBuildings(int mId, int sX, int sY, int W, int H, int aX, int aY) {
-        // 건물 바로 바깥 1칸이 도로
         int left = sX - 1;
         int right = sX + W;
         int top = sY - 1;
         int bottom = sY + H;
 
-        // 건물 기준 시계방향 도로 생성
+        // 건물 기준 시계방향 도로
         for (int x = left; x < right; x++) {
-            addEdge(x, top, RIGHT, mId);       // 위 →
+            addEdge(x, top, RIGHT, mId);
         }
 
         for (int y = top; y < bottom; y++) {
-            addEdge(right, y, DOWN, mId);      // 오른쪽 ↓
+            addEdge(right, y, DOWN, mId);
         }
 
         for (int x = right; x > left; x--) {
-            addEdge(x, bottom, LEFT, mId);     // 아래 ←
+            addEdge(x, bottom, LEFT, mId);
         }
 
         for (int y = bottom; y > top; y--) {
-            addEdge(left, y, UP, mId);         // 왼쪽 ↑
+            addEdge(left, y, UP, mId);
         }
 
         int dockX, dockY, dockDir;
 
-        // 하역장은 별도 이동 칸이 아니라 도로 위의 특정 지점
+        // 하역장은 별도의 이동 칸이 아니다.
         if (aY == 0 && 0 < aX && aX < W - 1) {
             dockX = sX + aX;
             dockY = top;
@@ -160,104 +173,102 @@ class UserSolution {
         }
 
         dock.put(mId, new int[]{dockX, dockY, dockDir});
+
+        if (!buildingIndex.containsKey(mId)) {
+            buildingIndex.put(mId, buildingIds.size());
+            buildingIds.add(mId);
+        }
+
+        // 건물이 추가되면 도로 구조가 달라지므로 기존 BFS 캐시 무효화
+        distanceCache.clear();
         dirty = true;
     }
 
 
+    /*
+     * 이동 문제를 두 부분으로 분리
+     *
+     * 1. 하역장 간 최단거리 : BFS
+     * 2. 경유지 방문 순서   : Bitmask DP
+     */
     public int move(int mFrom, int mTo, int M, int[] wayThrough) {
         if (dirty) {
             buildCrossroads();
         }
 
-        // 경유 하역장 방문 여부 bitmask
-        Map<Integer, Integer> viaBit = new HashMap<>();
-        for (int i = 0; i < M; i++) {
-            viaBit.put(wayThrough[i], 1 << i);
+        // 경유지가 없으면 출발 -> 도착 최단거리만 필요
+        if (M == 0) {
+            int distance = getDistance(mFrom, mTo);
+            return distance >= INF ? -1 : distance;
         }
 
         int fullMask = (1 << M) - 1;
+        int[][] dp = new int[1 << M][M];
 
-        // (x, y, dir) -> 하역장 건물 ID
-        Map<Integer, List<Integer>> dockAt = new HashMap<>();
-
-        for (Map.Entry<Integer, int[]> entry : dock.entrySet()) {
-            int buildingId = entry.getKey();
-            int[] info = entry.getValue();
-
-            int key = dockKey(info[0], info[1], info[2]);
-            dockAt.computeIfAbsent(key, k -> new ArrayList<>()).add(buildingId);
+        for (int[] row : dp) {
+            Arrays.fill(row, INF);
         }
 
-        int[] start = dock.get(mFrom);
-        int[] target = dock.get(mTo);
+        // 출발지 -> 첫 번째 경유지
+        for (int i = 0; i < M; i++) {
+            int distance = getDistance(mFrom, wayThrough[i]);
 
-        int sx = start[0];
-        int sy = start[1];
-        int startDir = start[2];
-
-        int tx = target[0];
-        int ty = target[1];
-        int targetDir = target[2];
-
-        int startMask = viaBit.getOrDefault(mFrom, 0);
-
-        // BFS 상태: {x, y, direction, mask, distance}
-        ArrayDeque<int[]> queue = new ArrayDeque<>();
-        queue.add(new int[]{sx, sy, startDir, startMask, 0});
-
-        int stateCount = N * N * 4 * (1 << M);
-        boolean[] visited = new boolean[stateCount];
-
-        int startState = encode(sx, sy, startDir, startMask, M);
-        visited[startState] = true;
-
-        while (!queue.isEmpty()) {
-            int[] current = queue.poll();
-
-            int x = current[0];
-            int y = current[1];
-            int direction = current[2];
-            int mask = current[3];
-            int distance = current[4];
-
-            // 목적지 하역장 + 모든 경유지 방문
-            if (x == tx && y == ty && direction == targetDir && mask == fullMask) {
-                return distance;
+            if (distance < INF) {
+                dp[1 << i][i] = distance;
             }
+        }
 
-            List<int[]> nextPositions = getNextPositions(x, y, direction);
-
-            for (int[] next : nextPositions) {
-                int nx = next[0];
-                int ny = next[1];
-                int nextDir = next[2];
-                int nextMask = mask;
-
-                // 하역장 방문은 추가 이동 비용 없음
-                int key = dockKey(nx, ny, nextDir);
-
-                List<Integer> buildingIds = dockAt.get(key);
-                if (buildingIds != null) {
-                    for (int buildingId : buildingIds) {
-                        Integer bit = viaBit.get(buildingId);
-                        if (bit != null) {
-                            nextMask |= bit;
-                        }
-                    }
-                }
-
-                int state = encode(nx, ny, nextDir, nextMask, M);
-
-                if (visited[state]) {
+        // dp[mask][last]
+        // mask의 하역장을 방문했고 현재 last에 있을 때 최소 거리
+        for (int mask = 1; mask <= fullMask; mask++) {
+            for (int last = 0; last < M; last++) {
+                if ((mask & (1 << last)) == 0 || dp[mask][last] == INF) {
                     continue;
                 }
 
-                visited[state] = true;
-                queue.add(new int[]{nx, ny, nextDir, nextMask, distance + 1});
+                for (int next = 0; next < M; next++) {
+                    if ((mask & (1 << next)) != 0) {
+                        continue;
+                    }
+
+                    int distance = getDistance(
+                            wayThrough[last],
+                            wayThrough[next]
+                    );
+
+                    if (distance >= INF) {
+                        continue;
+                    }
+
+                    int nextMask = mask | (1 << next);
+                    int newDistance = dp[mask][last] + distance;
+
+                    if (newDistance < dp[nextMask][next]) {
+                        dp[nextMask][next] = newDistance;
+                    }
+                }
             }
         }
 
-        return -1;
+        // 마지막 경유지 -> 목적지
+        int answer = INF;
+
+        for (int last = 0; last < M; last++) {
+            if (dp[fullMask][last] == INF) {
+                continue;
+            }
+
+            int distance = getDistance(wayThrough[last], mTo);
+
+            if (distance < INF) {
+                answer = Math.min(
+                        answer,
+                        dp[fullMask][last] + distance
+                );
+            }
+        }
+
+        return answer >= INF ? -1 : answer;
     }
 
 
@@ -269,20 +280,33 @@ class UserSolution {
             return;
         }
 
-        // 시계방향 이동 가능
         road[y][x] |= 1 << direction;
-
         isRoad[y][x] = true;
         isRoad[ny][nx] = true;
 
-        // 물리적 도로가 어느 건물에 의해 만들어졌는지 저장
-        edgeOwner[y][x][direction].add(buildingId);
+        addOwner(x, y, direction, buildingId);
 
         int opposite = (direction + 2) % 4;
-        edgeOwner[ny][nx][opposite].add(buildingId);
+        addOwner(nx, ny, opposite, buildingId);
     }
 
 
+    private void addOwner(int x, int y, int direction, int buildingId) {
+        if (edgeOwner[y][x][direction] == null) {
+            edgeOwner[y][x][direction] = new HashSet<>();
+        }
+
+        edgeOwner[y][x][direction].add(buildingId);
+    }
+
+
+    /*
+     * incident edge의 owner 구성이 달라지는 지점을 교차로로 판단
+     *
+     * {A}, {A}       -> 일반 모서리
+     * {A,B}, {A,B}   -> 겹친 도로 내부
+     * {A}, {A,B} ... -> 합류 / 분기 지점
+     */
     private void buildCrossroads() {
         for (int y = 0; y < N; y++) {
             for (int x = 0; x < N; x++) {
@@ -292,38 +316,27 @@ class UserSolution {
                     continue;
                 }
 
-                Set<Set<Integer>> ownerPatterns = new HashSet<>();
+                Set<Integer> firstOwners = null;
                 int degree = 0;
+                boolean different = false;
 
                 for (int direction = 0; direction < 4; direction++) {
                     Set<Integer> owners = edgeOwner[y][x][direction];
 
-                    if (owners.isEmpty()) {
+                    if (owners == null) {
                         continue;
                     }
 
                     degree++;
-                    ownerPatterns.add(new HashSet<>(owners));
+
+                    if (firstOwners == null) {
+                        firstOwners = owners;
+                    } else if (!firstOwners.equals(owners)) {
+                        different = true;
+                    }
                 }
 
-                if (degree < 2) {
-                    continue;
-                }
-
-                /*
-                 * 건물 모서리
-                 * {A}, {A}
-                 * → 교차로 X
-                 *
-                 * 겹친 도로 내부
-                 * {A,B}, {A,B}
-                 * → 교차로 X
-                 *
-                 * 도로가 합쳐지거나 갈라지는 곳
-                 * {A}, {A,B}, {B}
-                 * → 교차로 O
-                 */
-                if (ownerPatterns.size() >= 2) {
+                if (degree >= 2 && different) {
                     crossroad[y][x] = true;
                 }
             }
@@ -333,13 +346,113 @@ class UserSolution {
     }
 
 
-    private List<int[]> getNextPositions(int x, int y, int direction) {
-        List<int[]> result = new ArrayList<>(4);
+    /*
+     * 이미 해당 하역장에서 BFS를 수행했다면 캐시 사용
+     */
+    private int getDistance(int fromId, int toId) {
+        int[] distances = distanceCache.get(fromId);
 
-        // 1. 교차로
-        // 실제로 존재하는 시계방향 간선들 중 선택
-        if (crossroad[y][x]) {
+        if (distances == null) {
+            distances = bfs(fromId);
+            distanceCache.put(fromId, distances);
+        }
+
+        Integer targetIndex = buildingIndex.get(toId);
+
+        if (targetIndex == null) {
+            return INF;
+        }
+
+        return distances[targetIndex];
+    }
+
+
+    /*
+     * BFS 상태는 (x, y, direction)만 사용
+     *
+     * 경유지 방문 여부는 BFS에서 제거하고
+     * move()의 Bitmask DP에서 담당한다.
+     */
+    private int[] bfs(int startBuildingId) {
+        int[] start = dock.get(startBuildingId);
+
+        int sx = start[0];
+        int sy = start[1];
+        int startDir = start[2];
+
+        if (visitId == Integer.MAX_VALUE) {
+            Arrays.fill(visited, 0);
+            visitId = 0;
+        }
+
+        visitId++;
+
+        int head = 0;
+        int tail = 0;
+
+        int startState = encodeState(sx, sy, startDir);
+
+        queue[tail++] = startState;
+        visited[startState] = visitId;
+        stateDistance[startState] = 0;
+
+        while (head < tail) {
+            int state = queue[head++];
+
+            int direction = state & 3;
+            int position = state >> 2;
+
+            int x = position % N;
+            int y = position / N;
+
+            int currentDistance = stateDistance[state];
+
+            // 교차로 : 유효한 시계방향 간선으로 분기
+            if (crossroad[y][x]) {
+                for (int nextDir = 0; nextDir < 4; nextDir++) {
+                    if ((road[y][x] & (1 << nextDir)) == 0) {
+                        continue;
+                    }
+
+                    int nx = x + DX[nextDir];
+                    int ny = y + DY[nextDir];
+
+                    tail = pushState(
+                            nx,
+                            ny,
+                            nextDir,
+                            currentDistance + 1,
+                            tail
+                    );
+                }
+
+                continue;
+            }
+
+            // 일반 도로 / 겹친 도로 : 현재 방향 유지
+            if ((road[y][x] & (1 << direction)) != 0) {
+                int nx = x + DX[direction];
+                int ny = y + DY[direction];
+
+                tail = pushState(
+                        nx,
+                        ny,
+                        direction,
+                        currentDistance + 1,
+                        tail
+                );
+
+                continue;
+            }
+
+            // 건물 모서리 : 직진이 안 되면 시계방향 간선으로 회전
+            int opposite = (direction + 2) % 4;
+
             for (int nextDir = 0; nextDir < 4; nextDir++) {
+                if (nextDir == opposite) {
+                    continue;
+                }
+
                 if ((road[y][x] & (1 << nextDir)) == 0) {
                     continue;
                 }
@@ -347,44 +460,32 @@ class UserSolution {
                 int nx = x + DX[nextDir];
                 int ny = y + DY[nextDir];
 
-                if (inside(nx, ny) && isRoad[ny][nx]) {
-                    result.add(new int[]{nx, ny, nextDir});
-                }
-            }
-
-            return result;
-        }
-
-        // 2. 일반 도로 / 겹친 도로 내부
-        // 현재 방향으로 갈 수 있으면 계속 직진
-        if ((road[y][x] & (1 << direction)) != 0) {
-            int nx = x + DX[direction];
-            int ny = y + DY[direction];
-
-            if (inside(nx, ny) && isRoad[ny][nx]) {
-                result.add(new int[]{nx, ny, direction});
-                return result;
+                tail = pushState(
+                        nx,
+                        ny,
+                        nextDir,
+                        currentDistance + 1,
+                        tail
+                );
             }
         }
 
-        // 3. 건물 모서리
-        // 직진이 안 되면 등록된 시계방향 간선으로 회전
-        int opposite = (direction + 2) % 4;
+        // BFS 한 번으로 현재 등록된 모든 하역장까지의 거리 저장
+        int[] result = new int[buildingIds.size()];
+        Arrays.fill(result, INF);
 
-        for (int nextDir = 0; nextDir < 4; nextDir++) {
-            if (nextDir == opposite) {
-                continue;
-            }
+        for (int i = 0; i < buildingIds.size(); i++) {
+            int buildingId = buildingIds.get(i);
+            int[] target = dock.get(buildingId);
 
-            if ((road[y][x] & (1 << nextDir)) == 0) {
-                continue;
-            }
+            int targetState = encodeState(
+                    target[0],
+                    target[1],
+                    target[2]
+            );
 
-            int nx = x + DX[nextDir];
-            int ny = y + DY[nextDir];
-
-            if (inside(nx, ny) && isRoad[ny][nx]) {
-                result.add(new int[]{nx, ny, nextDir});
+            if (visited[targetState] == visitId) {
+                result[i] = stateDistance[targetState];
             }
         }
 
@@ -392,18 +493,33 @@ class UserSolution {
     }
 
 
+    private int pushState(
+            int x,
+            int y,
+            int direction,
+            int distance,
+            int tail
+    ) {
+        int nextState = encodeState(x, y, direction);
+
+        if (visited[nextState] == visitId) {
+            return tail;
+        }
+
+        visited[nextState] = visitId;
+        stateDistance[nextState] = distance;
+        queue[tail++] = nextState;
+
+        return tail;
+    }
+
+
+    private int encodeState(int x, int y, int direction) {
+        return ((y * N + x) << 2) | direction;
+    }
+
+
     private boolean inside(int x, int y) {
         return 0 <= x && x < N && 0 <= y && y < N;
-    }
-
-
-    private int encode(int x, int y, int direction, int mask, int M) {
-        int position = y * N + x;
-        return ((position * 4 + direction) << M) | mask;
-    }
-
-
-    private int dockKey(int x, int y, int direction) {
-        return ((y * N + x) << 2) | direction;
     }
 }
